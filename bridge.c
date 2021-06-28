@@ -11,7 +11,7 @@ int number_of_cars;
 int curr_on_bridge = -1;
 int debug;
 int direction;
-int variable;
+int variable = 1;
 elm queue_to_city_A;
 elm* q_city_a = &queue_to_city_A;
 elm queue_to_city_B;
@@ -220,12 +220,6 @@ void *car_thread(void* car_number){
                 fprintf(stderr, "bridge mutex lock error");
                 exit(-1);
             }
-
-        //oczekuje zwolnienia mostu aby wysłać sygnał odblokowania
-        if(curr_on_bridge == -1){
-            variable = 1;
-            pthread_cond_signal(&cond);
-        }
         
         //czeka na spełnienie warunku
         while(variable == 0)
@@ -267,7 +261,9 @@ void *car_thread(void* car_number){
             
             }
         
-
+        //wysłanie sygnału odblokowania
+        variable = 1;
+        pthread_cond_signal(&cond);
         //odblokowanie mostu
         pthread_mutex_unlock(&bridge);
     }
